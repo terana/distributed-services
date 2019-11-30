@@ -6,11 +6,13 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"os"
 )
 
 /* Start a gRPC server */
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 7778))
+	port := os.Args[1]
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
