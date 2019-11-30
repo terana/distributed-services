@@ -2,10 +2,11 @@ API_OUT := "api/api.pb.go"
 
 SERVER_PKG_BUILD := "server"
 CLIENT_PKG_BUILD := "client"
+GATHER_SERVER_PKG_BUILD := "gather-server"
 
 .PHONY: all api server client
 
-all: server client
+all: server client gather-server
 
 api/random_str_api.pb.go: api/random_str_api.proto
 	@protoc -I api/ \
@@ -23,6 +24,9 @@ server: dep api
 
 client: dep api
 	@go build -i -v -o client $(CLIENT_PKG_BUILD)
+
+gather-server: dep api
+	@go build -i -v -o gather-server $(GATHER_SERVER_PKG_BUILD)
 
 clean:
 	@rm server client api/random_str_api.pb.go

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"google.golang.org/grpc"
 	"log"
 	"math/rand"
 	"time"
@@ -31,7 +32,6 @@ func Delay() {
 	}
 }
 
-/* gRPC server */
 type Server struct {
 }
 
@@ -42,5 +42,40 @@ func (s *Server) GetRandomStr(ctx context.Context, in *RandomStrReqMessage) (*Ra
 
 	return &RandomStrRespMessage{
 		RandomStr: StringWithCharset(128, charset),
+	}, nil
+}
+
+func CallRandomStrServer() string {
+	var conn *grpc.ClientConn
+
+	conn, err := grpc.Dial(":7778", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %s", err)
+	}
+	defer conn.Close()
+
+	c := NewRandomStrClient(conn)
+	response, err := c.GetRandomStr(context.Background(), &RandomStrReqMessage{Message: "Hello from GatherServer."})
+	if err != nil {
+		log.Fatalf("Error when calling GetRandomStr: %s", err)
+	}
+
+	log.Printf("Response from server: %s", response.RandomStr)
+	return response.RandomStr
+}
+
+type GatherServer struct {
+}
+
+func (s *GatherServer) GatherRandomStr(ctx context.Context, in *RandomStrReqMessage) (*RandomStrRespMessage, error) {
+	log.Printf("Received message %s", in.Message)
+
+	var result string
+	for i := 0; i < 16; i++ {
+		result += CallRandomStrServer()
+	}
+
+	return &RandomStrRespMessage{
+		RandomStr: result,
 	}, nil
 }

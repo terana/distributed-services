@@ -17,8 +17,8 @@ func main() {
 	}
 	defer conn.Close()
 
-	c := api.NewRandomStrClient(conn)
-	response, err := c.GetRandomStr(context.Background(), &api.RandomStrReqMessage{Message: "ping"})
+	c := api.NewGatherRandomStrClient(conn)
+	response, err := c.GatherRandomStr(context.Background(), &api.RandomStrReqMessage{Message: "ping"})
 	if err != nil {
 		log.Fatalf("Error when calling GetRandomStr: %s", err)
 	}

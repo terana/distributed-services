@@ -10,14 +10,14 @@ import (
 
 /* Start a gRPC server */
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 7778))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 7777))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := api.Server{}
+	s := api.GatherServer{}
 	grpcServer := grpc.NewServer()
-	api.RegisterRandomStrServer(grpcServer, &s)
+	api.RegisterGatherRandomStrServer(grpcServer, &s)
 
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %s", err)

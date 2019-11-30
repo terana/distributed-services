@@ -2,13 +2,19 @@ syntax = "proto3";
 package api;
 
 message RandomStrReqMessage {
-	string message = 1;
+    string message = 1;
 }
 
 message RandomStrRespMessage {
-  string random_str = 1;
+    string random_str = 1;
 }
 
 service RandomStr {
-  rpc GetRandomStr(RandomStrReqMessage) returns (RandomStrRespMessage) {}
+    rpc GetRandomStr (RandomStrReqMessage) returns (RandomStrRespMessage) {
+    }
+}
+
+service GatherRandomStr {
+    rpc GatherRandomStr (RandomStrReqMessage) returns (RandomStrRespMessage) {
+    }
 }
