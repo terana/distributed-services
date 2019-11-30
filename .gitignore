@@ -1,0 +1,4 @@
+# Binaries
+client/client
+server/server
+api/random_str_api.pb.go
