@@ -7,7 +7,7 @@ GATHER_SERVER_PKG_BUILD := "gather-server"
 all: server client gather-server
 
 api/random_str_api.pb.go: api/random_str_api.proto
-	@protoc -I api/ \
+	protoc -I api/ \
 		-I${GOPATH}/src \
 		--go_out=plugins=grpc:api \
 		api/random_str_api.proto
@@ -15,22 +15,28 @@ api/random_str_api.pb.go: api/random_str_api.proto
 api: api/random_str_api.pb.go
 
 dep:
-	@go get -d ./...
+	go get -d ./...
 
 server: dep api
-	@go build -i -o server/server $(SERVER_PKG_BUILD)
+	go build -i -o server/server $(SERVER_PKG_BUILD)
 
 client: dep api
-	@go build -i -o client/client $(CLIENT_PKG_BUILD)
+	go build -i -o client/client $(CLIENT_PKG_BUILD)
 
 gather-server: dep api
-	@go build -i -o gather-server/gather-server $(GATHER_SERVER_PKG_BUILD)
+	go build -i -o gather-server/gather-server $(GATHER_SERVER_PKG_BUILD)
 
-run-docker:
-	docker build -t grpc . && docker run -it --rm grpc bash
+build-docker:
+	docker build . -t distributed
 
-docker-compose:
-	docker-compose up --scale server=5 --build
+run-docker: build-docker
+	docker run -it --rm distributed bash
+
+run-services: build-docker
+	docker swarm init ||:
+	docker stack deploy --compose-file docker-compose.yml distributed
+	docker service ls
+	# docker service logs distributed_client
 
 clean:
-	@rm server/server client/client gather-server/gather-server api/random_str_api.pb.go
+	rm server/server client/client gather-server/gather-server api/random_str_api.pb.go

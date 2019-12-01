@@ -2,6 +2,7 @@ version: '3'
 services:
 
   client:
+    image: distributed
     restart: always
     build: ./
     links:
@@ -9,6 +10,7 @@ services:
     command: ["client/client", "gather-server:7777"]
 
   gather-server:
+    image: distributed
     restart: always
     build: ./
     expose:
@@ -18,8 +20,12 @@ services:
     command: ["gather-server/gather-server", "7777", "server:7778"]
 
   server:
+    image: distributed
     restart: always
     build: ./
+    deploy:
+      mode: replicated
+      replicas: 6
     expose:
       - "7778"
     command: ["server/server", "7778"]
