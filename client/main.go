@@ -2,21 +2,28 @@ package main
 
 import (
 	"api"
-	"fmt"
-	"log"
-	"os"
-
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"log"
+	"os"
 )
 
 func main() {
-	port := os.Args[1]
+	if len(os.Args) < 2 {
+		log.Fatalf("Usage: %s <gather_server_host:gather_server_port>", os.Args[0])
+	}
+	gatherServerAddress := os.Args[1]
 
 	var conn *grpc.ClientConn
-	conn, err := grpc.Dial(fmt.Sprintf(":%s", port), grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %s", err)
+	var err error
+
+	for ; ; {
+		conn, err = grpc.Dial(gatherServerAddress, grpc.WithInsecure())
+		if err != nil {
+			log.Println("did not connect: %s. Trying again...", err)
+		} else {
+			break
+		}
 	}
 	defer conn.Close()
 
@@ -26,5 +33,5 @@ func main() {
 		log.Fatalf("Error when calling GetRandomStr: %s", err)
 	}
 
-	log.Printf("Response from server: %s", response.RandomStr)
+	log.Printf("Response from gather server: %s", response.RandomStr)
 }

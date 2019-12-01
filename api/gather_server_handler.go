@@ -1,16 +1,15 @@
 package api
 
 import (
-	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"log"
 )
 
-func CallRandomStrServer(port int, result chan string) {
+func CallRandomStrServer(address string, result chan string) {
 	var conn *grpc.ClientConn
 
-	conn, err := grpc.Dial(fmt.Sprintf(":%d", port), grpc.WithInsecure())
+	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
@@ -22,34 +21,26 @@ func CallRandomStrServer(port int, result chan string) {
 		log.Fatalf("Error when calling GetRandomStr: %s", err)
 	}
 
-	log.Printf("Response from server %d: %s", port, response.RandomStr)
+	log.Printf("Response from server: %s", response.RandomStr)
 	result <- response.RandomStr
 }
 
 type GatherServer struct {
+	RandomStrServerAddress string
 }
 
 func (s *GatherServer) GatherRandomStr(ctx context.Context, in *RandomStrReqMessage) (*RandomStrRespMessage, error) {
 	log.Printf("Received message %s", in.Message)
 
-	randomStrServerPorts := [2]int{7778, 7779}
-	n_calls := 16
+	nCalls := 16
 
 	results := make(chan string)
-
-	for i := 0; i < n_calls; {
-		for _, port := range randomStrServerPorts {
-			go CallRandomStrServer(port, results)
-
-			i++
-			if i >= n_calls {
-				break
-			}
-		}
+	for i := 0; i < nCalls; i++ {
+		go CallRandomStrServer(s.RandomStrServerAddress, results)
 	}
 
 	var result string
-	for i := 0; i < n_calls; i++ {
+	for i := 0; i < nCalls; i++ {
 		result += <-results
 	}
 

@@ -1,0 +1,25 @@
+version: '3'
+services:
+
+  client:
+    restart: always
+    build: ./
+    links:
+      - gather-server
+    command: ["client/client", "gather-server:7777"]
+
+  gather-server:
+    restart: always
+    build: ./
+    expose:
+      - "7777"
+    links:
+      - server
+    command: ["gather-server/gather-server", "7777", "server:7778"]
+
+  server:
+    restart: always
+    build: ./
+    expose:
+      - "7778"
+    command: ["server/server", "7778"]

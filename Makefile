@@ -1,5 +1,3 @@
-API_OUT := "api/api.pb.go"
-
 SERVER_PKG_BUILD := "server"
 CLIENT_PKG_BUILD := "client"
 GATHER_SERVER_PKG_BUILD := "gather-server"
@@ -17,16 +15,22 @@ api/random_str_api.pb.go: api/random_str_api.proto
 api: api/random_str_api.pb.go
 
 dep:
-	@go get -v -d ./...
+	@go get -d ./...
 
 server: dep api
-	@go build -i -v -o server $(SERVER_PKG_BUILD)
+	@go build -i -o server/server $(SERVER_PKG_BUILD)
 
 client: dep api
-	@go build -i -v -o client $(CLIENT_PKG_BUILD)
+	@go build -i -o client/client $(CLIENT_PKG_BUILD)
 
 gather-server: dep api
-	@go build -i -v -o gather-server $(GATHER_SERVER_PKG_BUILD)
+	@go build -i -o gather-server/gather-server $(GATHER_SERVER_PKG_BUILD)
+
+run-docker:
+	docker build -t grpc . && docker run -it --rm grpc bash
+
+docker-compose:
+	docker-compose up --scale server=5 --build
 
 clean:
-	@rm server client api/random_str_api.pb.go
+	@rm server/server client/client gather-server/gather-server api/random_str_api.pb.go
