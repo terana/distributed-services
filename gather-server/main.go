@@ -3,10 +3,11 @@ package main
 import (
 	"api"
 	"fmt"
-	"google.golang.org/grpc"
 	"log"
 	"net"
 	"os"
+
+	"google.golang.org/grpc"
 )
 
 /* Start a gRPC server */

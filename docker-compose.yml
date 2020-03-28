@@ -29,3 +29,12 @@ services:
     expose:
       - "7778"
     command: ["server/server", "7778"]
+
+  prometheus:
+    image: prom/prometheus
+    restart: always
+    volumes:
+      - ./prometheus:/etc/prometheus
+    ports:
+      - "9090:9090"
+

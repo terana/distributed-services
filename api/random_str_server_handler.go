@@ -27,7 +27,8 @@ func Delay() {
 	n := 100
 
 	if seededRand.Intn(n) == 0 {
-		time.Sleep(time.Second)
+		log.Println("Going to sleep...")
+    time.Sleep(time.Second)
 	}
 }
 

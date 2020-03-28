@@ -18,10 +18,11 @@ func CallRandomStrServer(address string, result chan string) {
 	c := NewRandomStrClient(conn)
 	response, err := c.GetRandomStr(context.Background(), &RandomStrReqMessage{Message: "Hello from GatherServer."})
 	if err != nil {
-		log.Fatalf("Error when calling GetRandomStr: %s", err)
+		log.Printf("Error when calling GetRandomStr: %s", err)
+    result <- ""
+    return
 	}
 
-	log.Printf("Response from server: %s", response.RandomStr)
 	result <- response.RandomStr
 }
 
