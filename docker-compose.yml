@@ -13,8 +13,6 @@ services:
     image: distributed
     restart: always
     build: ./
-    expose:
-      - "7777"
     links:
       - server
     command: ["gather-server/gather-server", "7777", "server:7778"]
@@ -26,8 +24,6 @@ services:
     deploy:
       mode: replicated
       replicas: 6
-    expose:
-      - "7778"
     command: ["server/server", "7778"]
 
   prometheus:
@@ -39,4 +35,15 @@ services:
       - "9090:9090"
     links:
       - client
+      - gather-server
 
+  grafana:
+    image: grafana/grafana
+    restart: always
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3000:3000"
+    links:
+      - prometheus

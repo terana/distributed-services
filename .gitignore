@@ -7,3 +7,6 @@ api/random_str_api.pb.go
 # Goland noise
 github.com/*
 golang.org/*
+
+# Services data volumes
+grafana/data/*

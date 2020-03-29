@@ -41,7 +41,9 @@ start-services: build-docker
 stop-services:
 	docker service rm distributed_client ||:
 	docker service rm distributed_server ||:
-	docker service rm distributed_gather-server
+	docker service rm distributed_gather-server ||:
+	docker service rm distributed_prometheus ||:
+	docker service rm distributed_grafana
 
 clean:
 	rm server/server client/client gather-server/gather-server api/random_str_api.pb.go
