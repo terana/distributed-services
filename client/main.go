@@ -36,9 +36,9 @@ func main() {
 
   rpcDurations := prometheus.NewSummaryVec(
 		prometheus.SummaryOpts{
-			Name:       "gather_server_latency_seconds",
-			Help:       "Gathered requests latency distributions.",
-			//Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+			Name: "gather_server_latency_seconds",
+			Help: "Gathered requests latency distributions.",
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 		},
 		[]string{"service"},
 	)
@@ -56,7 +56,7 @@ func main() {
       latency := time.Since(start)
       rpcDurations.WithLabelValues("normal").Observe(latency.Seconds())
       if err != nil {
-        log.Fatalf("Error when calling GatherRandomStr: %s", err)
+        log.Printf("Error when calling GatherRandomStr: %s", err)
       }
       time.Sleep(time.Second)
     }

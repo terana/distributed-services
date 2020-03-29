@@ -6,8 +6,11 @@ import (
 	"log"
 	"net"
 	"os"
+  "net/http"
 
 	"google.golang.org/grpc"
+  "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 /* Start a gRPC server */
@@ -23,9 +26,33 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := api.GatherServer{RandomStrServerAddress: serverAddress}
+  rpcDurations := prometheus.NewSummaryVec(
+		prometheus.SummaryOpts{
+			Name:       "service_latency_seconds",
+			Help:       "Service latency distributions.",
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+		},
+		[]string{"service"},
+	)
+  prometheus.MustRegister(rpcDurations)
+
+	s := api.GatherServer{
+    RandomStrServerAddress: serverAddress,
+    PrometheusSummaryVec: rpcDurations,
+  }
 	grpcServer := grpc.NewServer()
 	api.RegisterGatherRandomStrServer(grpcServer, &s)
+
+  go func() {
+    http.Handle("/metrics", promhttp.HandlerFor(
+		  prometheus.DefaultGatherer,
+		  promhttp.HandlerOpts{
+			  // Opt into OpenMetrics to support exemplars.
+			  EnableOpenMetrics: true,
+		  },
+	  ))
+    log.Fatal(http.ListenAndServe(":8080", nil))
+  }()
 
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %s", err)

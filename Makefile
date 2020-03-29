@@ -32,7 +32,7 @@ build-docker:
 run-docker: build-docker
 	docker run -it --rm distributed bash
 
-run-services: build-docker
+start-services: build-docker
 	docker swarm init ||:
 	docker stack deploy --compose-file docker-compose.yml distributed
 	docker service ls
