@@ -2,21 +2,21 @@ package api
 
 import (
 	"log"
-  "time"
+	"time"
 
-  "golang.org/x/net/context"
+	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-  "github.com/prometheus/client_golang/prometheus"
 )
 
 func CallRandomStrServer(address string, summaryVec *prometheus.SummaryVec, result chan string) {
 	var conn *grpc.ClientConn
-  var err error
+	var err error
 
 	for ; ; {
 		conn, err = grpc.Dial(address, grpc.WithInsecure())
 		if err != nil {
-			log.Println("did not connect: %s. Trying again...", err)
+			log.Printf("did not connect: %s. Trying again...", err)
 		} else {
 			break
 		}
@@ -25,13 +25,13 @@ func CallRandomStrServer(address string, summaryVec *prometheus.SummaryVec, resu
 
 	c := NewRandomStrClient(conn)
 	start := time.Now()
-  response, err := c.GetRandomStr(context.Background(), &RandomStrReqMessage{Message: "from GatherServer."})
-  latency := time.Since(start)
+	response, err := c.GetRandomStr(context.Background(), &RandomStrReqMessage{Message: "from GatherServer."})
+	latency := time.Since(start)
 	summaryVec.WithLabelValues("normal").Observe(latency.Seconds())
-  if err != nil {
+	if err != nil {
 		log.Printf("Error when calling GetRandomStr: %s", err)
-    result <- ""
-    return
+		result <- ""
+		return
 	}
 
 	result <- response.RandomStr
@@ -39,7 +39,7 @@ func CallRandomStrServer(address string, summaryVec *prometheus.SummaryVec, resu
 
 type GatherServer struct {
 	RandomStrServerAddress string
-  PrometheusSummaryVec   *prometheus.SummaryVec
+	PrometheusSummaryVec   *prometheus.SummaryVec
 }
 
 func (s *GatherServer) GatherRandomStr(ctx context.Context, in *RandomStrReqMessage) (*RandomStrRespMessage, error) {

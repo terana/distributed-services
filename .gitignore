@@ -3,3 +3,7 @@ client/client
 server/server
 gather-server/gather-server
 api/random_str_api.pb.go
+
+# Goland noise
+github.com/*
+golang.org/*
