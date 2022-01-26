@@ -4,6 +4,8 @@ import (
 	"log"
 	"math/rand"
 	"time"
+	"encoding/json"
+	"os"
 
 	"golang.org/x/net/context"
 )
@@ -22,23 +24,23 @@ func StringWithCharset(length int, charset string) string {
 	return string(b)
 }
 
-func Delay() {
-	/* 1 request from n will be slow */
-	n := 100
-
+/* 1 request from n will be slower by seconds */
+func Delay(n int, seconds int) {
 	if seededRand.Intn(n) == 0 {
 		log.Println("Going to sleep...")
-		time.Sleep(time.Second)
+		time.Sleep(time.Second * seconds)
 	}
 }
 
 type Server struct {
+	n int # Every nth request slow
+	delay int # seconds
 }
 
 func (s *Server) GetRandomStr(ctx context.Context, in *RandomStrReqMessage) (*RandomStrRespMessage, error) {
 	log.Printf("Received message %s", in.Message)
 
-	Delay()
+	Delay(s.n, s.delay)
 
 	return &RandomStrRespMessage{
 		RandomStr: StringWithCharset(128, charset),

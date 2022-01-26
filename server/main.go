@@ -7,7 +7,13 @@ import (
 	"log"
 	"net"
 	"os"
+	"encoding/json"
 )
+
+type Config struct {
+	every_nth_request_slow int
+	seconds_delay int
+}
 
 /* Start a gRPC server */
 func main() {
@@ -16,12 +22,25 @@ func main() {
 	}
 	port := os.Args[1]
 
+	file, _ := os.Open("config.json")
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	config := Config{}
+	err := decoder.Decode(&config)
+	if err != nil {
+		log.Fatalf("failed to get configuration: %v", err)
+	}
+
+
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := api.Server{}
+	s := api.Server{
+		n: config.every_nth_request_slow,
+		delay: config.seconds_delay,
+	}
 	grpcServer := grpc.NewServer()
 	api.RegisterRandomStrServer(grpcServer, &s)
 

@@ -1,0 +1,4 @@
+{
+  "every_nth_request_slow": 100,
+  "seconds_delay": 1
+}
